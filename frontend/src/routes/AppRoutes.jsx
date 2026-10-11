@@ -3,6 +3,7 @@ import { ProtectedRoute } from "../components/common/ProtectedRoute";
 import { RequireRole } from "../components/common/RequireRole";
 import { PublicOnly } from "../components/common/PublicOnly";
 import { EmployerLayout } from "../layouts/EmployerLayout";
+import { AdminLayout } from "../features/admin/AdminLayout";
 
 // Authentication Pages
 import { PublicLandingPage } from "../features/auth/pages/PublicLandingPage";
@@ -13,8 +14,19 @@ import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
 import { UnauthorizedPage } from "../features/auth/pages/UnauthorizedPage";
 
 // Role Dashboard Placeholders for Collaborators
-import { AdminDashboardPlaceholder } from "../features/admin/pages/AdminDashboardPlaceholder";
 import { CandidateDashboardPlaceholder } from "../features/candidate/pages/CandidateDashboardPlaceholder";
+
+// Admin pages
+import { AdminDashboardPage } from "../features/admin/pages/AdminDashboardPage";
+import { CompaniesPage } from "../features/admin/pages/CompaniesPage";
+import { DriveApprovalsPage } from "../features/admin/pages/DriveApprovalsPage";
+import { UserManagementPage } from "../features/admin/pages/UserManagementPage";
+import { JobsAndDrivesPage } from "../features/admin/pages/JobsAndDrivesPage";
+import { ApplicationsPage } from "../features/admin/pages/ApplicationsPage";
+import { ReportsPage } from "../features/admin/pages/ReportsPage";
+import { ActivityLogsPage } from "../features/admin/pages/ActivityLogsPage";
+import { NotificationsPage } from "../features/admin/pages/NotificationsPage";
+import { AdminSettingsPage } from "../features/admin/pages/AdminSettingsPage";
 
 // Employer & Recruitment Pages (Ritik's Module)
 import { EmployerDashboardPage } from "../features/recruiter/pages/EmployerDashboardPage";
@@ -104,21 +116,24 @@ export function AppRoutes() {
         element={
           <ProtectedRoute>
             <RequireRole allowedRoles={["ADMIN"]}>
-              <AdminDashboardPlaceholder />
+              <AdminLayout />
             </RequireRole>
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/admin/dashboard"
-        element={
-          <ProtectedRoute>
-            <RequireRole allowedRoles={["ADMIN"]}>
-              <AdminDashboardPlaceholder />
-            </RequireRole>
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="companies" element={<CompaniesPage />} />
+        <Route path="drive-approvals" element={<DriveApprovalsPage />} />
+        <Route path="users" element={<UserManagementPage />} />
+        <Route path="jobs" element={<JobsAndDrivesPage />} />
+        <Route path="applications" element={<ApplicationsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="activity-logs" element={<ActivityLogsPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+      </Route>
 
       {/* CANDIDATE PROTECTED ROUTES (Yadit's Domain) */}
       <Route
