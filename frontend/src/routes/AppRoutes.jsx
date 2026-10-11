@@ -13,8 +13,19 @@ import { EmployerRegisterPage } from "../features/auth/pages/EmployerRegisterPag
 import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
 import { UnauthorizedPage } from "../features/auth/pages/UnauthorizedPage";
 
-// Role Dashboard Placeholders for Collaborators
-import { CandidateDashboardPlaceholder } from "../features/candidate/pages/CandidateDashboardPlaceholder";
+// Candidate Layout & Pages (Sagar's Candidate Module)
+import { CandidateLayout } from "../layouts/CandidateLayout";
+import { CandidateDashboardPage } from "../features/candidate/pages/CandidateDashboardPage";
+import { CandidateProfilePage } from "../features/candidate/pages/CandidateProfilePage";
+import { CandidateProfileEditPage } from "../features/candidate/pages/CandidateProfileEditPage";
+import { CandidateResumePage } from "../features/candidate/pages/CandidateResumePage";
+import { CandidateDrivesPage } from "../features/candidate/pages/CandidateDrivesPage";
+import { CandidateDriveDetailsPage } from "../features/candidate/pages/CandidateDriveDetailsPage";
+import { CandidateApplicationsPage } from "../features/candidate/pages/CandidateApplicationsPage";
+import { CandidateApplicationDetailsPage } from "../features/candidate/pages/CandidateApplicationDetailsPage";
+import { CandidateInterviewsPage } from "../features/candidate/pages/CandidateInterviewsPage";
+import { CandidateNotificationsPage } from "../features/candidate/pages/CandidateNotificationsPage";
+import { CandidateSettingsPage } from "../features/candidate/pages/CandidateSettingsPage";
 
 // Admin pages
 import { AdminDashboardPage } from "../features/admin/pages/AdminDashboardPage";
@@ -135,27 +146,31 @@ export function AppRoutes() {
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Route>
 
-      {/* CANDIDATE PROTECTED ROUTES (Yadit's Domain) */}
+      {/* CANDIDATE PROTECTED ROUTES (Sagar's Candidate Module) */}
       <Route
         path="/candidate"
         element={
           <ProtectedRoute>
             <RequireRole allowedRoles={["CANDIDATE"]}>
-              <CandidateDashboardPlaceholder />
+              <CandidateLayout />
             </RequireRole>
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/candidate/dashboard"
-        element={
-          <ProtectedRoute>
-            <RequireRole allowedRoles={["CANDIDATE"]}>
-              <CandidateDashboardPlaceholder />
-            </RequireRole>
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<Navigate to="/candidate/dashboard" replace />} />
+        <Route path="dashboard" element={<CandidateDashboardPage />} />
+        <Route path="profile" element={<CandidateProfilePage />} />
+        <Route path="profile/edit" element={<CandidateProfileEditPage />} />
+        <Route path="resume" element={<CandidateResumePage />} />
+        <Route path="drives" element={<CandidateDrivesPage />} />
+        <Route path="drives/:driveId" element={<CandidateDriveDetailsPage />} />
+        <Route path="applications" element={<CandidateApplicationsPage />} />
+        <Route path="applications/:applicationId" element={<CandidateApplicationDetailsPage />} />
+        <Route path="interviews" element={<CandidateInterviewsPage />} />
+        <Route path="notifications" element={<CandidateNotificationsPage />} />
+        <Route path="settings" element={<CandidateSettingsPage />} />
+        <Route path="*" element={<Navigate to="/candidate/dashboard" replace />} />
+      </Route>
 
       {/* EMPLOYER & RECRUITER PROTECTED ROUTES (Ritik's Module) */}
       <Route
