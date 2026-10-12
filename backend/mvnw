@@ -1,0 +1,27 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper Script for Unix / macOS
+# ----------------------------------------------------------------------------
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`"/$link"
+  fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`" >/dev/null
+APP_DIR="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+if [ -x "$APP_DIR/../tools/apache-maven-3.9.9/bin/mvn" ]; then
+    exec "$APP_DIR/../tools/apache-maven-3.9.9/bin/mvn" "$@"
+elif command -v mvn >/dev/null 2>&1; then
+    exec mvn "$@"
+else
+    echo "Error: Maven not found." >&2
+    exit 1
+fi
