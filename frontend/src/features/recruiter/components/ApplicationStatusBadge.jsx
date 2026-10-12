@@ -1,6 +1,9 @@
 import { Badge } from "../../../components/ui/Badge";
+import { normalizeApplicationStatus } from "../../../utils/statusUtils";
 
 export function ApplicationStatusBadge({ status }) {
+  const norm = normalizeApplicationStatus(status);
+
   const map = {
     Registered: { variant: "primary", dot: true, label: "Registered" },
     "Under Review": { variant: "warning", dot: true, label: "Under Review" },
@@ -11,7 +14,7 @@ export function ApplicationStatusBadge({ status }) {
     Rejected: { variant: "danger", dot: false, label: "Rejected" },
   };
 
-  const item = map[status] || { variant: "neutral", dot: false, label: status };
+  const item = map[norm] || { variant: "neutral", dot: false, label: norm || status };
 
   return (
     <Badge variant={item.variant} dot={item.dot}>

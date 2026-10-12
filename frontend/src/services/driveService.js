@@ -8,7 +8,7 @@
  * Approved drives become Published / Ongoing / Completed
  */
 
-import { storageService } from "./storageService";
+import { storageService } from "./storageService.js";
 
 export const driveService = {
   async getDrives(filters = {}) {

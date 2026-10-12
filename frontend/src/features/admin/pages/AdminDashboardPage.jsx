@@ -4,7 +4,8 @@ import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { storageService } from "../../../services/storageService";
-import { getAdminCompanies } from "../utils/adminData";
+import { getAdminCompanies, getAdminUsers } from "../utils/adminData";
+import { normalizeCompanyStatus, normalizeApprovalStatus } from "../../../utils/statusUtils";
 import { CalendarIcon, BuildingIcon, UsersIcon, ClockIcon, BriefcaseIcon, ClipboardListIcon, ArrowRightIcon } from "../../../components/common/Icons";
 
 const statConfig = [
@@ -24,15 +25,22 @@ export function AdminDashboardPage() {
   const applications = storageService.getApplications();
   const activities = storageService.getActivities();
   const companies = getAdminCompanies();
+  const users = getAdminUsers();
 
   const stats = useMemo(() => {
-    const totalCandidates = applications.length;
-    const totalEmployers = Math.max(4, companies.length + 1);
-    const verifiedCompanies = companies.filter((company) => company.verificationStatus === "VERIFIED").length;
-    const pendingCompanyVerifications = companies.filter((company) => company.verificationStatus === "PENDING").length;
+    const totalCandidates = users.filter((u) => u.role === "CANDIDATE").length;
+    const totalEmployers = companies.length;
+    const verifiedCompanies = companies.filter(
+      (company) => normalizeCompanyStatus(company.verificationStatus) === "VERIFIED"
+    ).length;
+    const pendingCompanyVerifications = companies.filter(
+      (company) => normalizeCompanyStatus(company.verificationStatus) === "PENDING"
+    ).length;
     const totalJobs = jobs.length;
     const totalWalkInDrives = drives.length;
-    const pendingDriveApprovals = drives.filter((drive) => ["Pending Approval", "Changes Requested"].includes(drive.approvalStatus)).length;
+    const pendingDriveApprovals = drives.filter((drive) =>
+      ["PENDING", "CHANGES_REQUESTED"].includes(normalizeApprovalStatus(drive.approvalStatus))
+    ).length;
     const totalApplications = applications.length;
 
     return {
@@ -45,7 +53,7 @@ export function AdminDashboardPage() {
       pendingDriveApprovals,
       totalApplications,
     };
-  }, [applications.length, companies, drives, jobs]);
+  }, [applications.length, companies, drives, jobs, users]);
 
   const pendingApprovals = [
     ...companies

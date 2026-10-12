@@ -177,7 +177,7 @@ export function AppRoutes() {
         path="/employer"
         element={
           <ProtectedRoute>
-            <RequireRole allowedRoles={["EMPLOYER", "ADMIN"]}>
+            <RequireRole allowedRoles={["EMPLOYER"]}>
               <EmployerLayout />
             </RequireRole>
           </ProtectedRoute>

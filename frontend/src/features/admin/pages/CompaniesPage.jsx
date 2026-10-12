@@ -30,25 +30,25 @@ export function CompaniesPage() {
   const selectedCompany = filteredCompanies.find((company) => company.id === selectedId) || filteredCompanies[0] || null;
 
   const updateStatus = (companyId, nextStatus) => {
-    const next = companyRows.map((company) =>
-      company.id === companyId
-        ? {
-            ...company,
-            verificationStatus: nextStatus,
-            reviewReason: nextStatus === "REJECTED" ? "Application did not meet required verification standards." : "",
-          }
-        : company
-    );
-    setCompanyRows(next);
-    saveAdminCompanies(next);
+    let reason = "";
+    if (nextStatus === "REJECTED") {
+      const inputReason = window.prompt(
+        "Please provide rejection feedback / reason for the employer:",
+        "Submitted documents do not meet verification criteria or contact information mismatch."
+      );
+      if (inputReason === null) return; // user cancelled
+      reason = inputReason.trim() || "Application did not meet required verification standards.";
+    }
+
+    const updatedList = storageService.updateCompanyVerification(companyId, nextStatus, reason);
+    setCompanyRows(updatedList);
     storageService.addActivity({
       type: nextStatus === "VERIFIED" ? "company_verified" : "company_rejected",
       title: nextStatus === "VERIFIED" ? "Company verified" : "Company registration rejected",
-      description: nextStatus === "VERIFIED" ? `Verified ${next.find((company) => company.id === companyId)?.name}.` : `Rejected verification for ${next.find((company) => company.id === companyId)?.name}.`,
+      description: nextStatus === "VERIFIED" ? `Verified ${updatedList.find((c) => c.id === companyId)?.name}.` : `Rejected verification for ${updatedList.find((c) => c.id === companyId)?.name}.`,
       entityId: companyId,
     });
-    const updated = next.find((company) => company.id === companyId);
-    setSelectedId(updated?.id || companyId);
+    setSelectedId(companyId);
   };
 
   return (
