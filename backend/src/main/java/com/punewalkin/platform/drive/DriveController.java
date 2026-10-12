@@ -127,14 +127,20 @@ public class DriveController {
 
     @PatchMapping("/api/v1/admin/drives/{driveId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Approve or reject a drive (Admin)")
+    @Operation(summary = "Approve, request changes, or reject a drive (Admin)")
     public ResponseEntity<ApiResponse<WalkInDrive>> approveDrive(
             @PathVariable String driveId,
             @RequestBody Map<String, String> body,
             @AuthenticationPrincipal UserPrincipal principal) {
-        boolean approve = "APPROVED".equalsIgnoreCase(body.get("action"));
-        String feedback = body.get("feedback");
-        WalkInDrive drive = driveService.approveDrive(driveId, approve, feedback, principal.getId());
+        String action = body != null ? body.get("action") : null;
+        String feedback = body != null ? body.get("feedback") : null;
+        WalkInDrive drive;
+        if ("CHANGES_REQUESTED".equalsIgnoreCase(action)) {
+            drive = driveService.requestChanges(driveId, feedback, principal.getId());
+        } else {
+            boolean approve = "APPROVED".equalsIgnoreCase(action);
+            drive = driveService.approveDrive(driveId, approve, feedback, principal.getId());
+        }
         return ResponseEntity.ok(ApiResponse.success("Drive approval status updated", drive));
     }
 }

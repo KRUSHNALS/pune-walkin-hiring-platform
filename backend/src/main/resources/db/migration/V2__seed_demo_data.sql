@@ -313,7 +313,7 @@ INSERT INTO notifications (id, recipient_user_id, title, message, notification_t
 ('notif-02', 'user-cand-01', 'Walk-In Drive Confirmed', 'Your registration for Mega Walk-In Drive for Freshers & Junior Full Stack Engineers is confirmed. Token TS-W26-004.', 'drive', 'APPLICATION', 'app-001', '/candidate/applications/app-001', FALSE, '2026-10-08 10:14:00'),
 ('notif-03', 'user-admin-01', 'New Drive Submitted for Approval', 'TechSprint Innovations submitted drive: QA Automation & SDET Weekend Walk-In Drive - Hinjawadi.', 'drive_submitted', 'DRIVE', 'drive-02', '/admin/drive-approvals', FALSE, '2026-10-07 15:00:00'),
 ('notif-04', 'user-admin-01', 'New Company Verification Request', 'CloudCore Systems submitted corporate profile for verification.', 'company_verification', 'COMPANY', 'comp-02', '/admin/companies', FALSE, '2026-09-18 14:00:00')
-ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
+ON DUPLICATE KEY UPDATE title = VALUES(title), message = VALUES(message);
 
 -- Seed Activity Logs
 INSERT INTO activity_logs (id, actor_user_id, action, entity_type, entity_id, title, description, previous_status, new_status, created_at) VALUES
