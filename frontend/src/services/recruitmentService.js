@@ -8,7 +8,7 @@
  * - Ritik manages: Screening, Shortlisting, Hold, Rejection, and Interview Handoff.
  */
 
-import { storageService } from "./storageService";
+import { storageService } from "./storageService.js";
 
 export const PIPELINE_STAGES = [
   { id: "Registered", label: "Registered", color: "blue", description: "Applied via Pune Walk-In portal" },
@@ -129,6 +129,27 @@ export const recruitmentService = {
       description: `${updatedApp.candidateName} moved to ${newStatus} (${updatedApp.jobTitle})`,
       entityId: updatedApp.id,
     });
+
+    // Notify candidate
+    try {
+      const targetUserId = current.candidateId || "user-cand-01";
+      const notifKey = `punewalkin_candidate_notifications_${targetUserId}`;
+      const rawNotifs = localStorage.getItem(notifKey);
+      const notifs = rawNotifs ? JSON.parse(rawNotifs) : [];
+      notifs.unshift({
+        id: `notif-${Date.now()}`,
+        title: `Application Status: ${newStatus}`,
+        message: `Your application for "${current.jobTitle}" has moved to "${newStatus}". ${note || reason || ""}`,
+        type: newStatus === "Shortlisted" ? "shortlist" : newStatus === "Selected" ? "offer" : "info",
+        timestamp: "Just now",
+        date: formattedDate,
+        read: false,
+        link: `/candidate/applications/${applicationId}`,
+      });
+      localStorage.setItem(notifKey, JSON.stringify(notifs.slice(0, 30)));
+    } catch (e) {
+      console.warn("Could not dispatch candidate notification", e);
+    }
 
     return updatedApp;
   },

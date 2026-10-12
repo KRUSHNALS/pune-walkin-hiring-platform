@@ -4,6 +4,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { SearchIcon, UserCheckIcon, XCircleIcon } from "../../../components/common/Icons";
 import { getAdminUsers, saveAdminUsers } from "../utils/adminData";
+import { storageService } from "../../../services/storageService";
 
 const statusOptions = ["All", "ACTIVE", "VERIFIED", "PENDING_VERIFICATION", "SUSPENDED"];
 
@@ -28,6 +29,13 @@ export function UserManagementPage() {
     const updated = users.map((user) => (user.id === userId ? { ...user, status: nextStatus } : user));
     setUsers(updated);
     saveAdminUsers(updated);
+    const target = updated.find((u) => u.id === userId);
+    storageService.addActivity({
+      type: "user_status_changed",
+      title: "User Account Status Updated",
+      description: `Admin changed account status of ${target?.name || "user"} to ${nextStatus}.`,
+      entityId: userId,
+    });
   };
 
   return (

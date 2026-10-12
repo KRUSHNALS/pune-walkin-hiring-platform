@@ -59,11 +59,25 @@ export function CompanyProfilePage() {
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
                   {company.name}
                 </h2>
-                <Badge variant="success" dot={true}>
+                <Badge
+                  variant={
+                    company.verificationStatus === "VERIFIED" || company.verificationStatus === "Verified"
+                      ? "success"
+                      : company.verificationStatus === "REJECTED" || company.verificationStatus === "Rejected"
+                      ? "danger"
+                      : "warning"
+                  }
+                  dot={true}
+                >
                   <ShieldCheckIcon className="h-3.5 w-3.5" />
                   {company.verificationStatus}
                 </Badge>
               </div>
+              {company.reviewReason && (
+                <div className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+                  <strong>Admin Note:</strong> {company.reviewReason}
+                </div>
+              )}
               <p className="text-sm text-slate-600 font-medium">
                 {company.tagline}
               </p>

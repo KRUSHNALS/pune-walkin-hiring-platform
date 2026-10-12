@@ -61,15 +61,28 @@ export function EmployerDashboardPage() {
       <div className="rounded-2xl border border-slate-200/90 bg-linear-to-r from-slate-900 to-slate-800 p-6 text-white shadow-sm sm:p-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-300 border border-blue-400/30">
-                <ShieldCheckIcon className="h-3.5 w-3.5 text-blue-300" />
-                {company?.verificationStatus || "Verified Employer"}
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${
+                  company?.verificationStatus === "VERIFIED" || company?.verificationStatus === "Verified"
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/30"
+                    : company?.verificationStatus === "REJECTED" || company?.verificationStatus === "Rejected"
+                    ? "bg-rose-500/20 text-rose-300 border-rose-400/30"
+                    : "bg-amber-500/20 text-amber-300 border-amber-400/30"
+                }`}
+              >
+                <ShieldCheckIcon className="h-3.5 w-3.5" />
+                {company?.verificationStatus || "Pending Verification"}
               </span>
               <span className="text-xs text-slate-400">
                 Pune IT Recruitment Hub
               </span>
             </div>
+            {company?.reviewReason && (
+              <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-200">
+                <strong>Admin Feedback:</strong> {company.reviewReason}
+              </div>
+            )}
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {company?.name || "TechSprint Innovations"}
             </h2>

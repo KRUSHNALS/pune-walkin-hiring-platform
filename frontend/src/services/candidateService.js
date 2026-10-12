@@ -8,7 +8,8 @@
  * Synchronizes seamlessly with shared storageService (owned with Ritik & Krushna).
  */
 
-import { storageService } from "./storageService";
+import { storageService } from "./storageService.js";
+import { normalizeApprovalStatus, normalizeCompanyStatus } from "../utils/statusUtils.js";
 
 const STORAGE_KEYS = {
   PROFILE_PREFIX: "punewalkin_candidate_profile_",
@@ -264,10 +265,17 @@ export const candidateService = {
     const allDrives = storageService.getDrives();
     const myApps = await this.getMyApplications(user);
 
-    // Only show drives that are Approved and Published (or Ongoing)
-    let candidateDrives = allDrives.filter(
-      (d) => d.approvalStatus === "Approved" && d.driveStatus !== "Draft"
-    );
+    // Only show drives that are Approved and Published (or Ongoing) from Verified companies
+    const companies = storageService.getCompanies();
+    const primaryCompany = storageService.getCompany();
+
+    let candidateDrives = allDrives.filter((d) => {
+      const isApproved = normalizeApprovalStatus(d.approvalStatus) === "APPROVED";
+      const isPublished = d.driveStatus !== "Draft" && d.driveStatus !== "Cancelled";
+      const comp = companies.find((c) => c.id === d.companyId) || primaryCompany;
+      const isCompanyVerified = normalizeCompanyStatus(comp?.verificationStatus) === "VERIFIED";
+      return isApproved && isPublished && isCompanyVerified;
+    });
 
     const {
       search = "",
@@ -374,7 +382,7 @@ export const candidateService = {
     await new Promise((r) => setTimeout(r, 150));
     const drive = await this.getDriveDetails(driveId, user);
 
-    if (drive.approvalStatus !== "Approved") {
+    if (normalizeApprovalStatus(drive.approvalStatus) !== "APPROVED") {
       throw new Error("This drive is not approved for public registration.");
     }
 
@@ -383,12 +391,21 @@ export const candidateService = {
       throw new Error("The registration deadline for this walk-in drive has expired.");
     }
 
-    if (drive.isApplied) {
-      throw new Error("You have already registered for this walk-in drive.");
-    }
-
     const profile = await this.getProfile(user);
     const applications = storageService.getApplications();
+    const candId = user?.id || profile?.id || "cand-101";
+    const candEmail = (user?.email || profile?.email || "").toLowerCase();
+
+    // Prevent duplicate application
+    const existing = applications.find(
+      (a) =>
+        a.driveId === driveId &&
+        ((a.candidateId && a.candidateId === candId) ||
+          (a.email && a.email.toLowerCase() === candEmail))
+    );
+    if (existing || drive.isApplied) {
+      throw new Error("You have already registered for this walk-in drive.");
+    }
 
     // Generate unique, stable application ID and token
     const appId = `app-${String(applications.length + 1).padStart(3, "0")}`;
@@ -469,13 +486,14 @@ export const candidateService = {
     const userEmail = (user?.email || "candidate@example.com").toLowerCase();
     const userName = (user?.name || "").toLowerCase();
 
-    // Match by candidate email, name, or candidate ID
+    // Match by candidate ID, candidate email, or name
     let myApps = allApps.filter(
       (a) =>
+        (a.candidateId && user?.id && a.candidateId === user.id) ||
         (a.email && a.email.toLowerCase() === userEmail) ||
         (userEmail === "candidate@example.com" &&
-          (a.email.toLowerCase().includes("amit.deshmukh") ||
-            a.candidateName.toLowerCase().includes("amit deshmukh"))) ||
+          (a.email?.toLowerCase().includes("amit.deshmukh") ||
+            a.candidateName?.toLowerCase().includes("amit deshmukh"))) ||
         (a.candidateName && userName && a.candidateName.toLowerCase().includes(userName))
     );
 

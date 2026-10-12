@@ -1,15 +1,18 @@
 import { Badge } from "../../../components/ui/Badge";
+import { normalizeApprovalStatus, formatApprovalStatus } from "../../../utils/statusUtils";
 
 export function DriveApprovalBadge({ status }) {
+  const norm = normalizeApprovalStatus(status);
+
   const map = {
-    Approved: { variant: "success", dot: true, label: "Approved" },
-    "Pending Approval": { variant: "warning", dot: true, label: "Pending Approval" },
-    "Changes Requested": { variant: "danger", dot: true, label: "Changes Requested" },
-    Draft: { variant: "neutral", dot: false, label: "Draft" },
-    Rejected: { variant: "danger", dot: false, label: "Rejected" },
+    APPROVED: { variant: "success", dot: true, label: "Approved" },
+    PENDING: { variant: "warning", dot: true, label: "Pending Approval" },
+    CHANGES_REQUESTED: { variant: "warning", dot: true, label: "Changes Requested" },
+    DRAFT: { variant: "neutral", dot: false, label: "Draft" },
+    REJECTED: { variant: "danger", dot: false, label: "Rejected" },
   };
 
-  const item = map[status] || { variant: "neutral", dot: false, label: status };
+  const item = map[norm] || { variant: "neutral", dot: false, label: formatApprovalStatus(status) };
 
   return (
     <Badge variant={item.variant} dot={item.dot}>
