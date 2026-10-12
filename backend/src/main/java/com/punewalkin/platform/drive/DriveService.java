@@ -131,12 +131,12 @@ public class DriveService {
         if (!drive.getCreatedBy().getId().equals(requestingUserId)) {
             throw new ForbiddenException("Not authorized.");
         }
-        if (drive.getApprovalStatus() != DriveApprovalStatus.PENDING &&
-                drive.getApprovalStatus() != DriveApprovalStatus.REJECTED) {
+        if (drive.getApprovalStatus() == DriveApprovalStatus.PENDING ||
+                drive.getApprovalStatus() == DriveApprovalStatus.APPROVED) {
             throw new BadRequestException("Drive is already submitted or approved.");
         }
         drive.setApprovalStatus(DriveApprovalStatus.PENDING);
-        drive.setDriveStatus(DriveStatus.SUBMITTED);
+        drive.setDriveStatus(DriveStatus.DRAFT);
         drive.setSubmittedAt(LocalDateTime.now());
         return driveRepository.save(drive);
     }
@@ -154,6 +154,16 @@ public class DriveService {
             drive.setApprovalStatus(DriveApprovalStatus.REJECTED);
             drive.setDriveStatus(DriveStatus.DRAFT);
         }
+        return driveRepository.save(drive);
+    }
+
+    @Transactional
+    public WalkInDrive requestChanges(String driveId, String feedback, String adminUserId) {
+        WalkInDrive drive = driveRepository.findById(driveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Drive not found: " + driveId));
+        drive.setAdminFeedback(feedback);
+        drive.setApprovalStatus(DriveApprovalStatus.CHANGES_REQUESTED);
+        drive.setDriveStatus(DriveStatus.DRAFT);
         return driveRepository.save(drive);
     }
 
